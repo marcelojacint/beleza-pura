@@ -35,8 +35,13 @@ public class UsuarioService {
         Usuario usuarioExistente = repository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("usuário não existe!"));
         usuario.setId(usuarioExistente.getId());
+        usuarioExistente.setNomeCompleto(usuario.getNomeCompleto());
+        usuarioExistente.setEmail(usuario.getEmail());
+        usuarioExistente.setTelefone(usuario.getTelefone());
+        usuarioExistente.setSenha(usuario.getSenha());
+        usuarioExistente.setRole(usuarioExistente.getRole());
 
-        return repository.save(usuario);
+        return repository.save(usuarioExistente);
     }
 
     public void remove(String id) {
