@@ -1,6 +1,9 @@
 package com.marcelo.belezapura.controller;
 
 
+import com.marcelo.belezapura.controller.dtos.UsuarioRequestDTO;
+import com.marcelo.belezapura.controller.dtos.UsuarioResponseDTO;
+import com.marcelo.belezapura.controller.mappers.UsuarioMapper;
 import com.marcelo.belezapura.model.Usuario;
 import com.marcelo.belezapura.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -16,33 +19,38 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsuarioController {
     private final UsuarioService service;
+    private final UsuarioMapper mapper;
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> listaTodos() {
+    public ResponseEntity<List<UsuarioResponseDTO>> listaTodos() {
         List<Usuario> listaUsuarios = service.listaTodos();
-        return ResponseEntity.ok(listaUsuarios);
+        List<UsuarioResponseDTO> listaUsuariosResponses = listaUsuarios.stream().map(mapper::toResponse).toList();
+        return ResponseEntity.ok(listaUsuariosResponses);
     }
 
     @GetMapping("/{id}")
-    public Usuario buscaPorId(@PathVariable String id) {
+    public UsuarioResponseDTO buscaPorId(@PathVariable String id) {
         return service.buscaPorId(id)
-                .map(ResponseEntity::ok)
+                .map(usuario -> ResponseEntity.ok(mapper.toResponse(usuario)))
                 .orElse(ResponseEntity.notFound().build()).getBody();
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> criaNovo(@RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioResponseDTO> criaNovo(@RequestBody UsuarioRequestDTO dto) {
+        Usuario usuario = mapper.toEntity(dto);
         Usuario usuarioNovo = service.criaNovo(usuario);
+        UsuarioResponseDTO usuarioResponseDTO = mapper.toResponse(usuarioNovo);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("id")
                 .buildAndExpand(usuario.getId())
                 .toUri();
-        return ResponseEntity.created(uri).body(usuarioNovo);
+        return ResponseEntity.created(uri).body(usuarioResponseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualiza(@PathVariable String id, @RequestBody Usuario usuario) {
+    public ResponseEntity<Void> atualiza(@PathVariable String id, @RequestBody UsuarioRequestDTO dto) {
+        Usuario usuario = mapper.toEntity(dto);
         service.atualiza(id, usuario);
         return ResponseEntity.noContent().build();
     }
