@@ -17,9 +17,13 @@ public class Usuario {
     private UUID id;
 
     private String nomeCompleto;
-    private String email;
     private String telefone;
-    private Role role;
+    private String email;
+    private String senha;
+
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.CLIENTE;
+
     private Instant createdAt;
     private Instant updatedAt;
 
