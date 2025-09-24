@@ -6,6 +6,7 @@ import com.marcelo.belezapura.controller.dtos.UsuarioResponseDTO;
 import com.marcelo.belezapura.controller.mappers.UsuarioMapper;
 import com.marcelo.belezapura.model.Usuario;
 import com.marcelo.belezapura.service.UsuarioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> criaNovo(@RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> criaNovo(@Valid @RequestBody UsuarioRequestDTO dto) {
         Usuario usuario = mapper.toEntity(dto);
         Usuario usuarioNovo = service.criaNovo(usuario);
         UsuarioResponseDTO usuarioResponseDTO = mapper.toResponse(usuarioNovo);
