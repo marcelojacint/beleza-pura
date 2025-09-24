@@ -1,5 +1,6 @@
 package com.marcelo.belezapura.service;
 
+import com.marcelo.belezapura.exception.EntidadeNaoEncontradaException;
 import com.marcelo.belezapura.model.Usuario;
 import com.marcelo.belezapura.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class UsuarioService {
     public List<Usuario> listaTodos() {
         List<Usuario> listaUsuarios = repository.findAll();
         if (listaUsuarios.isEmpty()) {
-            throw new RuntimeException("lista de Usuários vazia!");
+            throw new EntidadeNaoEncontradaException("lista de Usuários vazia!");
         }
         return listaUsuarios;
     }
@@ -32,7 +33,7 @@ public class UsuarioService {
 
     public Usuario atualiza(String id, Usuario usuario) {
         Usuario usuarioExistente = repository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new RuntimeException("usuário não existe!"));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("usuário não existe!"));
         usuario.setId(usuarioExistente.getId());
 
         return repository.save(usuario);
@@ -42,7 +43,7 @@ public class UsuarioService {
         repository.findById(UUID.fromString(id))
                 .ifPresentOrElse(repository::delete,
                         () -> {
-                            throw new RuntimeException("usuário não encontrado!");
+                            throw new EntidadeNaoEncontradaException("usuário não encontrado!");
                         }
                 );
 
