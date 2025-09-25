@@ -3,6 +3,7 @@ package com.marcelo.belezapura.service;
 import com.marcelo.belezapura.exception.EntidadeNaoEncontradaException;
 import com.marcelo.belezapura.model.Usuario;
 import com.marcelo.belezapura.repository.UsuarioRepository;
+import com.marcelo.belezapura.validator.UsuarioValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,11 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
-    private final UsuarioRepository repository;
 
-    public List<Usuario> listaTodos() {
+    private final UsuarioRepository repository;
+    private final UsuarioValidator validator;
+
+    public List<Usuario> listarTodos() {
         List<Usuario> listaUsuarios = repository.findAll();
         if (listaUsuarios.isEmpty()) {
             throw new EntidadeNaoEncontradaException("lista de Usuários vazia!");
@@ -23,15 +26,16 @@ public class UsuarioService {
         return listaUsuarios;
     }
 
-    public Optional<Usuario> buscaPorId(String id) {
+    public Optional<Usuario> buscarPorId(String id) {
         return repository.findById(UUID.fromString(id));
     }
 
-    public Usuario criaNovo(Usuario usuario) {
+    public Usuario salvar(Usuario usuario) {
+        validator.validar(usuario);
         return repository.save(usuario);
     }
 
-    public Usuario atualiza(String id, Usuario usuario) {
+    public Usuario atualizar(String id, Usuario usuario) {
         Usuario usuarioExistente = repository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("usuário não existe!"));
         usuario.setId(usuarioExistente.getId());
@@ -41,10 +45,11 @@ public class UsuarioService {
         usuarioExistente.setSenha(usuario.getSenha());
         usuarioExistente.setRole(usuarioExistente.getRole());
 
+        validator.validar(usuario);
         return repository.save(usuarioExistente);
     }
 
-    public void remove(String id) {
+    public void remover(String id) {
         repository.findById(UUID.fromString(id))
                 .ifPresentOrElse(repository::delete,
                         () -> {
